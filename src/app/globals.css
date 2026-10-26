@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0b0e11;
+  --surface: #181a20;
+  --surface-elevated: #1e2329;
+  --surface-hover: #2b313a;
+  --border-dark: #2b313a;
+  --bull: #0ecb81;
+  --bear: #f6465d;
+  --gold: #f0b90b;
+  --text-primary: #eaecef;
+  --text-secondary: #848e9c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0b0e11;
+  color: #eaecef;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "tnum" 1, "zero" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Tabular Numerals for Financial Data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" on;
+}
+
+/* Custom Sleek Dark Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b0e11;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2b313a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #474d57;
+}
+
+/* Trade Flash Animations */
+@keyframes flashGreen {
+  0% {
+    background-color: rgba(14, 203, 129, 0.35);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes flashRed {
+  0% {
+    background-color: rgba(246, 70, 93, 0.35);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.flash-green {
+  animation: flashGreen 0.75s ease-out;
+}
+
+.flash-red {
+  animation: flashRed 0.75s ease-out;
+}
+
+/* Order Book Depth Bar Horizontal */
+.depth-bar-bid {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(14, 203, 129, 0.12);
+  z-index: 1;
+  pointer-events: none;
+  transition: width 0.2s ease-in-out;
+}
+
+.depth-bar-ask {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(246, 70, 93, 0.12);
+  z-index: 1;
+  pointer-events: none;
+  transition: width 0.2s ease-in-out;
+}

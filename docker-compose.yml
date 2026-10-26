@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  cryptobull-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cryptobull_web
+    restart: unless-stopped
+    ports:
+      - "3300:3300"
+    environment:
+      - PORT=3300
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_NAME=CRYPTOBULL.AI
+      - NEXT_PUBLIC_APP_URL=http://localhost:3300
+      - DATABASE_URL=postgresql://cryptobull:cryptobull_secure_pass@cryptobull-db:5432/cryptobull_db?schema=public
+      - REDIS_URL=redis://cryptobull-redis:6379
+    depends_on:
+      cryptobull-db:
+        condition: service_healthy
+      cryptobull-redis:
+        condition: service_started
+
+  cryptobull-db:
+    image: postgres:15-alpine
+    container_name: cryptobull_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cryptobull
+      POSTGRES_PASSWORD: cryptobull_secure_pass
+      POSTGRES_DB: cryptobull_db
+    ports:
+      # Port 5433 mapped to avoid conflict with existing host services (5050/5432)
+      - "5433:5432"
+    volumes:
+      - cryptobull_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cryptobull -d cryptobull_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  cryptobull-redis:
+    image: redis:7-alpine
+    container_name: cryptobull_redis
+    restart: unless-stopped
+    ports:
+      # Port 6381 mapped to avoid conflict with default redis 6379
+      - "6381:6379"
+    volumes:
+      - cryptobull_redisdata:/data
+
+volumes:
+  cryptobull_pgdata:
+  cryptobull_redisdata:
