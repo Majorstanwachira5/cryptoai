@@ -1,56 +1,84 @@
 version: '3.8'
 
 services:
-  cryptobull-web:
+  cryptohub-user:
     build:
-      context: .
+      context: ./cryptohub
       dockerfile: Dockerfile
-    container_name: cryptobull_web
+    container_name: cryptohub_user_app
     restart: unless-stopped
     ports:
-      - "3300:3300"
+      - "4000:4000"
     environment:
-      - PORT=3300
       - NODE_ENV=production
-      - NEXT_PUBLIC_APP_NAME=CRYPTOBULL.AI
-      - NEXT_PUBLIC_APP_URL=http://localhost:3300
-      - DATABASE_URL=postgresql://cryptobull:cryptobull_secure_pass@cryptobull-db:5432/cryptobull_db?schema=public
-      - REDIS_URL=redis://cryptobull-redis:6379
+      - PORT=4000
+      - NEXT_PUBLIC_APP_NAME=CryptoHub Institutional
+      - NEXT_PUBLIC_APP_URL=http://localhost:4000
+      - NEXT_PUBLIC_ADMIN_URL=http://localhost:3600
+      - JWT_SECRET=cryptohub_ai_super_secret_jwt_key_2026
+      - SUPABASE_URL=https://lwsybancxxqwrmxneyui.supabase.co
+      - SUPABASE_PUBLISHABLE_KEY=sb_publishable_S6vgt2hh2EkC9WeBer8jRw_5gy2Fj_R
+      - DATABASE_URL=postgresql://postgres:8nA76JiDn%40bwqXR@db.lwsybancxxqwrmxneyui.supabase.co:5432/postgres
+      - PAYLOR_API_KEY=pk_4buTnI1Mm9SRhFaKYYaZHpK16ivVOhYn
+      - PAYLOR_WEBHOOK_SECRET=7cac3823878d18d1fef3fdd19370ec67942bf5b3abb17f21be7fc0b2e68db98e
+      - PAYLOR_PAYMENT_CHANNEL=PAYL-EFSJUF
+      - PAYLOR_TRON_WALLET=TEbs6th1rgsrZNiYqdZEHGoJ3FJFA1zGYd
     depends_on:
-      cryptobull-db:
+      cryptohub-db:
         condition: service_healthy
-      cryptobull-redis:
-        condition: service_started
 
-  cryptobull-db:
+  cryptohub-admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: cryptohub_admin_app
+    restart: unless-stopped
+    ports:
+      - "3600:3600"
+    environment:
+      - NODE_ENV=production
+      - PORT=3600
+      - ADMIN_PORT=3600
+      - NEXT_PUBLIC_APP_NAME="CryptoHub Admin Authority"
+      - NEXT_PUBLIC_APP_URL=http://localhost:3600
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+      - JWT_SECRET=cryptohub_ai_super_secret_jwt_key_2026
+    depends_on:
+      - cryptohub-user
+
+  cryptohub-db:
     image: postgres:15-alpine
-    container_name: cryptobull_db
+    container_name: cryptohub_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: cryptobull
-      POSTGRES_PASSWORD: cryptobull_secure_pass
-      POSTGRES_DB: cryptobull_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 8nA76JiDn@bwqXR
+      POSTGRES_DB: postgres
     ports:
-      # Port 5433 mapped to avoid conflict with existing host services (5050/5432)
+      # Port 5433 mapped to host to prevent any collision with 5050
       - "5433:5432"
     volumes:
-      - cryptobull_pgdata:/var/lib/postgresql/data
+      - cryptohub_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cryptobull -d cryptobull_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  cryptobull-redis:
+  cryptohub-redis:
     image: redis:7-alpine
-    container_name: cryptobull_redis
+    container_name: cryptohub_redis_cache
     restart: unless-stopped
     ports:
-      # Port 6381 mapped to avoid conflict with default redis 6379
+      # Port 6381 mapped to host to prevent default 6379 collision
       - "6381:6379"
     volumes:
-      - cryptobull_redisdata:/data
+      - cryptohub_redisdata:/data
 
 volumes:
-  cryptobull_pgdata:
-  cryptobull_redisdata:
+  cryptohub_pgdata:
+  cryptohub_redisdata:
+
+networks:
+  default:
+    name: cryptohub-isolated-network
